@@ -175,9 +175,6 @@ const GraduateSearch = () => {
                 >
                   Contract
                 </Checkbox>
-                <Checkbox checked={temp} onChange={handleCheckBox} name="temp">
-                  Temp
-                </Checkbox>
               </Row>
             </Col>
           </Row>

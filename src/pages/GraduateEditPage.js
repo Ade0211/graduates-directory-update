@@ -17,7 +17,7 @@ const GraduateEditPage = ({ match }) => {
       const fetchData = async () => {
         try {
           const response = await axios.get(
-            `https://teamb-grads.herokuapp.com/graduates/${_id}`,
+            `http://localhost:3030/graduates/${_id}`,
           );
           dispatch({
             type: "FETCH_GRADUATE",

@@ -1,4 +1,4 @@
-// graduates-model.js - A mongoose model
+  // graduates-model.js - A mongoose model
 //
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
@@ -11,17 +11,17 @@ module.exports = function (app) {
     {
       fullname: {
         type: String,
-        required: [true, "First Name is required"],
+        // required: [true, "First Name is required"],
         maxLength: 30,
       },
       headline: {
         type: String,
-        required: [true, "Headline is required"],
+        // required: [true, "Headline is required"],
         maxLength: 100,
       },
       current_location: {
         type: String,
-        required: [true, "Location is required"],
+        // required: [true, "Location is required"],
         maxLength: 20,
       },
       languages: [
@@ -39,8 +39,13 @@ module.exports = function (app) {
       mobile: {
         type: Number,
       },
-      cv_upload: {
-        type: Buffer,
+      file_path: {
+        type: String,
+        // required: true
+      },
+      file_mimetype: {
+        type: String,
+        // required: true
       },
       full_time: {
         type: Boolean,
