@@ -7,7 +7,7 @@ import GraduateAddPage from "./pages/graduate-add-page";
 import GraduateListPage from "./pages/GraduateListPage";
 import GraduateProfilePage from "./pages/GraduateProfilePage";
 import GraduateInfoPage from "./pages/GraduateInfoPage";
-
+import AddGraduates from "./components/grad-add"
 import NotFound from "./pages/NotFound";
 import ContactForm from "./pages/ContactForm";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -17,7 +17,22 @@ import LogoutButton from "./pages/LogoutButton";
 
 const { Header, Content, Footer } = Layout;
 
+
+const injectGA = () => {
+  if (typeof window == "undefined") {
+    return;
+  }
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    window.dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+
+  gtag("config", "G-3Q0BC5HG21");
+};
+
 const App = () => {
+  injectGA();
   return (
     <Router>
       <Layout className="layout">
@@ -39,7 +54,7 @@ const App = () => {
             path="/graduates/delete/:_id"
             component={GraduateAddPage}
           />
-          <Route exact path="/graduates/new" component={GraduateAddPage} />
+          <Route exact path="/graduates/new" component={ AddGraduates} />
           <Route
             exact
             path="/graduates/edit/:_id"
@@ -84,6 +99,11 @@ const NavBar = () => {
         >
           {isAuthenticated && (
             <>
+             <Menu.Item>
+                <Link activeClassName="active" to="/graduates/new">
+                  Graduates Add
+                </Link>
+              </Menu.Item>
               <Menu.Item>
                 <Link activeClassName="active" to="/graduates">
                   Graduates Page

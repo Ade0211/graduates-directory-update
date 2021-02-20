@@ -5,6 +5,7 @@ import { Link, Redirect } from "react-router-dom";
 import axios from "axios";
 import { GraduateContext } from "../context/graduate-context";
 import { flashErrorMessage } from "../components/flash-message";
+import parse from "html-react-parser";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import {
@@ -41,7 +42,7 @@ const GraduateProfile = ({ graduate }) => {
   //Delete Graduate
   const deleteGraduate = async (id) => {
     try {
-      const response = await axios.delete(`https://teamb-grads.herokuapp.com/graduates/${id}`);
+      const response = await axios.delete(`http://localhost:3030/graduates/${id}`);
       dispatch({
         type: "DELETE_GRADUATE",
         payload: response.data,
@@ -167,7 +168,8 @@ const GraduateProfile = ({ graduate }) => {
             <br />
             <Collapse ghost>
               <Panel header="Read Resume" key="1">
-                <p>{graduate.resume_text}</p>
+                {/* <p>{graduate.resume_text}</p> */}
+                <p>{parse(graduate.resume_text)}</p>
               </Panel>
             </Collapse>
           </Card>

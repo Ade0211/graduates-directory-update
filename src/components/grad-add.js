@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState , useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { inputField } from "../pages/Inputs";
 import axios from "axios";
@@ -7,20 +7,34 @@ import { GraduateContext } from "../context/graduate-context";
 import { flashErrorMessage } from "./flash-message";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { Layout, Divider, Row, Button, Space, Checkbox, Col } from "antd";
 
-const GraduateAdd = ({ graduate }) => {
+/////new Editor
+// import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import { Layout, Divider, Row, Button, Space, Checkbox, Col } from "antd";
+import Dropzone from "react-dropzone";
+
+const AddGraduates = ({ graduate }) => {
   const [state, dispatch] = useContext(GraduateContext);
   const [redirect, setRedirect] = useState(false);
+  ///file state
+  const [file, setFile] = useState(null); // state for storing actual image
+  const [previewSrc, setPreviewSrc] = useState("");
+  // const [errorMsg, setErrorMsg] = useState("");
+  const [isPreviewAvailable, setIsPreviewAvailable] = useState(false); // state to show preview only for images
+  const dropRef = useRef();
+  ////////////////////////////////
   let history = useHistory();
   const { control, errors, handleSubmit } = useForm({
     defaultValues: graduate,
   });
 
   const createGraduate = async (data) => {
+
     try {
       const response = await axios.post(
         "http://localhost:3030/graduates",
+        // "https://teamb-grads.herokuapp.com/graduates",
         data,
       );
       dispatch({
@@ -38,36 +52,44 @@ const GraduateAdd = ({ graduate }) => {
     return <Redirect to="/" />;
   }
 
-  const updateGraduate = async (data) => {
-    try {
-      const response = await axios.patch(
-        `http://localhost:3030/graduates/${graduate._id}`,
-        data,
-      );
-      dispatch({
-        type: "UPDATE_GRADUATE",
-        payload: response.data,
-      });
-      setRedirect(true);
-    } catch (error) {
-      flashErrorMessage(dispatch, error);
-    }
+///////File Upload////
+const onDrop = (files) => {
+  const [uploadedFile] = files;
+  setFile(uploadedFile);
+console.log(uploadedFile);
+  const fileReader = new FileReader();
+  fileReader.onload = () => {
+    setPreviewSrc(fileReader.result);
   };
+  fileReader.readAsDataURL(uploadedFile);
+  setIsPreviewAvailable(uploadedFile.name.match(/\.(jpeg|jpg|png)$/));
+  dropRef.current.style.border = "2px dashed #e9ebeb";
+};
+
+const updateBorder = (dragState) => {
+  if (dragState === "over") {
+    dropRef.current.style.border = "2px solid #000";
+  } else if (dragState === "leave") {
+    dropRef.current.style.border = "2px dashed #e9ebeb";
+  }
+};
+
 
   function handleCancel() {
     history.push("/graduates");
   }
 
   const onSubmit = async (data) => {
-    if (graduate._id) {
-      await updateGraduate(data);
-    } else {
-      await createGraduate(data);
-    }
+
+      await createGraduate({data:{
+file
+
+      }});
+
   };
 
   if (redirect) {
-    return <Redirect to={`/graduates/${graduate._id}`} />;
+    return <Redirect to={`/graduates`} />;
   }
 
   const layout = {
@@ -81,11 +103,11 @@ const GraduateAdd = ({ graduate }) => {
 
   return (
     <Layout>
-      <Divider orientation="left">
+      {/* <Divider orientation="left">
         <h1 style={{ marginTop: "1em" }}>
           {graduate._id ? "Edit Your Profile" : "Add Your Profile"}
         </h1>
-      </Divider>
+      </Divider> */}
       <Row style={{ width: "60%" }} wrap={false}>
         <Col flex="none">
           <div style={{ padding: "0 40px" }}></div>
@@ -340,6 +362,44 @@ const GraduateAdd = ({ graduate }) => {
             <Divider />
 
             <Divider />
+
+            <Divider>
+            <div className="upload-section">
+          <Dropzone
+            onDrop={onDrop}
+            onDragEnter={() => updateBorder("over")}
+            onDragLeave={() => updateBorder("leave")}
+          >
+            {({ getRootProps, getInputProps }) => (
+              <div {...getRootProps({ className: "drop-zone" })} ref={dropRef}>
+                <input {...getInputProps()} />
+                <p>Drag and drop a file OR click here to select a file</p>
+                {file && (
+                  <div>
+                    <strong>Selected file:</strong> {file.name}
+                  </div>
+                )}
+              </div>
+            )}
+          </Dropzone>
+          {previewSrc ? (
+            isPreviewAvailable ? (
+              <div className="image-preview">
+                <img className="preview-image" src={previewSrc} alt="Preview" />
+              </div>
+            ) : (
+              <div className="preview-message">
+                <p>No preview available for this file</p>
+              </div>
+            )
+          ) : (
+            <div className="preview-message">
+              <p>Image preview will be shown here after selection</p>
+            </div>
+          )}
+        </div>
+            </Divider>
+
             <div className="input-group">
               <label className="label">Resume Text</label>
               <Controller
@@ -354,12 +414,32 @@ const GraduateAdd = ({ graduate }) => {
                     }
                     control={control}
                     style={{ height: "500px" }}
-                    value={value}
+                    value={value|| ''}
                   />
+                  // <></>
                 )}
               />
             </div>
-
+{/* <div className="input-group">
+<label className="label">Resume Text</label>
+<Controller
+control ={control}
+name = "resume_text"
+error={errors.description}
+render={({ onChange, onBlur, value }) => (
+  <Editor
+  type="text"
+  name="resume_text"
+  toolbarClassName="toolbarClassName"
+  wrapperClassName="wrapperClassName"
+  editorClassName="editorClassName"
+  control ={control}
+  as={inputField("resume_text")}
+  onChange={(e) => onChange(e.target.value)}
+  />
+  )}
+/>
+</div> */}
             <Divider />
             <Space>
               <Button type="primary" htmlType="submit">
@@ -376,4 +456,4 @@ const GraduateAdd = ({ graduate }) => {
   );
 };
 
-export default GraduateAdd;
+export default AddGraduates;

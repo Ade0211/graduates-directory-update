@@ -108,6 +108,7 @@ const GraduatePortal = ({ graduate }) => {
               {typeof graduate.resume_text === "string" &&
                 parse(graduate.resume_text)}
             </p>
+            {/* <p>{graduate.resume_text}</p> */}
           </Panel>
         </Collapse>
         {/* <Space>

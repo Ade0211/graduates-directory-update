@@ -106,7 +106,11 @@ const GraduateCard = ({ graduate }) => {
         <br />
         <Collapse ghost>
           <Panel header="Read Resume" key="1">
-            <p>{parse(graduate.resume_text)}</p>
+          <p>
+              {typeof graduate.resume_text === "string" &&
+                parse(graduate.resume_text)}
+            </p>
+            {/* <p>{graduate.resume_text}</p> */}
           </Panel>
         </Collapse>
         <Space>
