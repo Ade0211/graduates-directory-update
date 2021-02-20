@@ -1,4 +1,4 @@
-import React, { useContext, useState , useRef } from "react";
+import React, { useContext, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { inputField } from "../pages/Inputs";
 import axios from "axios";
@@ -30,13 +30,18 @@ const AddGraduates = ({ graduate }) => {
   });
 
   const createGraduate = async (data) => {
-
+    const formData = new FormData();
+    formData.append("uri", file);
     try {
-      const response = await axios.post(
-        "http://localhost:3030/graduates",
+      const response = await axios({
+        method: "POST",
+        headers: {
+          "content-type": "multipart/form-data",
+        },
+        url: "http://localhost:3030/graduates",
         // "https://teamb-grads.herokuapp.com/graduates",
-        data,
-      );
+        data: formData,
+      });
       dispatch({
         type: "CREATE_GRADUATE",
         payload: response.data,
@@ -45,47 +50,44 @@ const AddGraduates = ({ graduate }) => {
     } catch (error) {
       flashErrorMessage(dispatch, error);
     }
-    console.log(data);
   };
 
   if (redirect) {
     return <Redirect to="/" />;
   }
 
-///////File Upload////
-const onDrop = (files) => {
-  const [uploadedFile] = files;
-  setFile(uploadedFile);
-console.log(uploadedFile);
-  const fileReader = new FileReader();
-  fileReader.onload = () => {
-    setPreviewSrc(fileReader.result);
-  };
-  fileReader.readAsDataURL(uploadedFile);
-  setIsPreviewAvailable(uploadedFile.name.match(/\.(jpeg|jpg|png)$/));
-  dropRef.current.style.border = "2px dashed #e9ebeb";
-};
-
-const updateBorder = (dragState) => {
-  if (dragState === "over") {
-    dropRef.current.style.border = "2px solid #000";
-  } else if (dragState === "leave") {
+  ///////File Upload////
+  const onDrop = (files) => {
+    const [uploadedFile] = files;
+    setFile(uploadedFile);
+    console.log(uploadedFile);
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      setPreviewSrc(fileReader.result);
+    };
+    fileReader.readAsDataURL(uploadedFile);
+    setIsPreviewAvailable(uploadedFile.name.match(/\.(jpeg|jpg|png)$/));
     dropRef.current.style.border = "2px dashed #e9ebeb";
-  }
-};
+  };
 
+  const updateBorder = (dragState) => {
+    if (dragState === "over") {
+      dropRef.current.style.border = "2px solid #000";
+    } else if (dragState === "leave") {
+      dropRef.current.style.border = "2px dashed #e9ebeb";
+    }
+  };
 
   function handleCancel() {
     history.push("/graduates");
   }
 
   const onSubmit = async (data) => {
-
-      await createGraduate({data:{
-file
-
-      }});
-
+    await createGraduate({
+      data: {
+        file,
+      },
+    });
   };
 
   if (redirect) {
@@ -364,40 +366,47 @@ file
             <Divider />
 
             <Divider>
-            <div className="upload-section">
-          <Dropzone
-            onDrop={onDrop}
-            onDragEnter={() => updateBorder("over")}
-            onDragLeave={() => updateBorder("leave")}
-          >
-            {({ getRootProps, getInputProps }) => (
-              <div {...getRootProps({ className: "drop-zone" })} ref={dropRef}>
-                <input {...getInputProps()} />
-                <p>Drag and drop a file OR click here to select a file</p>
-                {file && (
-                  <div>
-                    <strong>Selected file:</strong> {file.name}
+              <div className="upload-section">
+                <Dropzone
+                  onDrop={onDrop}
+                  onDragEnter={() => updateBorder("over")}
+                  onDragLeave={() => updateBorder("leave")}
+                >
+                  {({ getRootProps, getInputProps }) => (
+                    <div
+                      {...getRootProps({ className: "drop-zone" })}
+                      ref={dropRef}
+                    >
+                      <input {...getInputProps()} />
+                      <p>Drag and drop a file OR click here to select a file</p>
+                      {file && (
+                        <div>
+                          <strong>Selected file:</strong> {file.name}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Dropzone>
+                {previewSrc ? (
+                  isPreviewAvailable ? (
+                    <div className="image-preview">
+                      <img
+                        className="preview-image"
+                        src={previewSrc}
+                        alt="Preview"
+                      />
+                    </div>
+                  ) : (
+                    <div className="preview-message">
+                      <p>No preview available for this file</p>
+                    </div>
+                  )
+                ) : (
+                  <div className="preview-message">
+                    <p>Image preview will be shown here after selection</p>
                   </div>
                 )}
               </div>
-            )}
-          </Dropzone>
-          {previewSrc ? (
-            isPreviewAvailable ? (
-              <div className="image-preview">
-                <img className="preview-image" src={previewSrc} alt="Preview" />
-              </div>
-            ) : (
-              <div className="preview-message">
-                <p>No preview available for this file</p>
-              </div>
-            )
-          ) : (
-            <div className="preview-message">
-              <p>Image preview will be shown here after selection</p>
-            </div>
-          )}
-        </div>
             </Divider>
 
             <div className="input-group">
@@ -414,13 +423,13 @@ file
                     }
                     control={control}
                     style={{ height: "500px" }}
-                    value={value|| ''}
+                    value={value || ""}
                   />
                   // <></>
                 )}
               />
             </div>
-{/* <div className="input-group">
+            {/* <div className="input-group">
 <label className="label">Resume Text</label>
 <Controller
 control ={control}
